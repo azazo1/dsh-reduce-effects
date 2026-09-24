@@ -43,6 +43,9 @@ describe('effectCss', () => {
     const css = effectCss(plan({ blur: false, smoothScroll: false }))
     expect(css).toContain('backdrop-filter: none !important')
     expect(css).toContain('scroll-behavior: auto !important')
+    // 只去掉模糊会留下半透明的菜单底色, 浮层会变得透明; 底色要一并换成不透明的层色.
+    expect(css).toContain('--dsw-menu-backdrop-filter: none !important')
+    expect(css).toContain('--dsw-specific-menu: var(--dsw-alias-bg-layer-2')
   })
 
   it('takes the hover marquee off its scroll container and clears its masks', () => {
