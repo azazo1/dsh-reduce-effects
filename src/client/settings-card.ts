@@ -48,6 +48,8 @@ export function createReduceEffectsCard(ui: ReduceEffectsCardUi): (props: Reduce
     const state = props.useReduceEffectsCard(snapshot => snapshot)
     if (props.view === 'summary') return t('description')
     const disabled = !state.writable
+    // 总闸关掉时各分类都不生效, 与旧页面一致: 分类开关暂时不可点, 但保留各自的值.
+    const masterOn = state.master.text === 'true'
 
     const field = (name: 'master' | CategoryField, order: number): unknown => el(SwitchField, {
       id: `plugin-config-reduce-effects-${name}`,
@@ -57,7 +59,7 @@ export function createReduceEffectsCard(ui: ReduceEffectsCardUi): (props: Reduce
       overridden: state[name].overridden,
       overriddenLabel: t('overridden'),
       resetLabel: t('reset'),
-      disabled,
+      disabled: disabled || (name !== MASTER_FIELD && !masterOn),
       onToggle: (next: boolean) => { props.edit(name, next ? 'true' : 'false') },
       onReset: () => { props.resetField(name) },
       key: `field-${String(order)}`,
