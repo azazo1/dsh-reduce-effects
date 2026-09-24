@@ -7,16 +7,36 @@
 ## 安装
 
 ```shell
+dsh plugin --profile web add azazo1/dsh-reduce-effects
+```
+
+npm 上的包:
+
+```shell
 dsh plugin --profile web add dsh-reduce-effects
 ```
 
-本地 checkout 或 tarball 同样可用:
+固定版本:
+
+```shell
+dsh plugin --profile web add azazo1/dsh-reduce-effects#v0.1.0
+```
+
+GitHub Release 同时挂不带版本号的预构建包, 安装时跳过 `allowBuilds`:
+
+```shell
+dsh plugin --profile web add https://github.com/azazo1/dsh-reduce-effects/releases/latest/download/dsh-reduce-effects.tgz
+```
+
+本地 checkout 也可以直接装目录:
 
 ```shell
 dsh plugin --profile web add ./dsh-reduce-effects
 ```
 
 安装后重启 `dsh web`, 浏览器里刷新一次页面.
+
+引擎版本线跟随 `@deepseek-ai/dsh-*` 的 `0.1.7-rc.1` (peerDependencies 同号). 插件配置自 `0.1.7-rc.1` 起走 volatile Config, 设置页经 `configForms` 读写同一份数据; 浏览器半区只向模块表请求 `react` 与 `@deepseek-ai/dsh-client-ui-primitives`. 还在更早引擎线上的部署暂时装不上这个版本.
 
 ## 使用
 
