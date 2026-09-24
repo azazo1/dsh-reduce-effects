@@ -27,14 +27,14 @@ export interface EffectPlan {
  * @param settings - normalized preference section.
  * @returns 每个分类最终是否保持开启.
  *
- * 总开关关掉时, 除豁免分类外一律关闭; 总开关打开时各分类听自己的开关.
- * 豁免分类 (加载与进度动画) 属于功能反馈, 总开关不代管它.
+ * 总开关是总闸: 关掉后各分类一律不生效; 打开时每个分类听自己的开关.
+ * 它只决定生不生效, 不改动各分类自己的值, 所以重新打开时原样恢复.
  */
 export function resolveEffectPlan(settings: ReduceEffectsSettings): EffectPlan {
   const master = settings.master
   return {
     motion: master && settings.motion,
-    spinnerMotion: settings.spinnerMotion,
+    spinnerMotion: master && settings.spinnerMotion,
     blur: master && settings.blur,
     smoothScroll: master && settings.smoothScroll,
     hoverMarquee: master && settings.hoverMarquee,

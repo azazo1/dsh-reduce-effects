@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATEGORY_FIELDS, DEFAULT_SETTINGS, MASTER_EXEMPT_FIELD, normalizeSettings } from '../src/settings.ts'
+import { CATEGORY_FIELDS, DEFAULT_SETTINGS, normalizeSettings } from '../src/settings.ts'
 import { planIsIdle, resolveEffectPlan } from '../src/client/effect-plan.ts'
 
 describe('normalizeSettings', () => {
@@ -31,14 +31,21 @@ describe('resolveEffectPlan', () => {
     expect(planIsIdle(plan)).toBe(false)
   })
 
-  it('turns every category off with the master switch except the loading feedback', () => {
+  it('turns every category off with the master switch', () => {
     const plan = resolveEffectPlan({ ...DEFAULT_SETTINGS, master: false })
-    for (const field of CATEGORY_FIELDS) expect(plan[field]).toBe(field === MASTER_EXEMPT_FIELD)
+    for (const field of CATEGORY_FIELDS) expect(plan[field]).toBe(false)
     expect(planIsIdle(plan)).toBe(false)
   })
 
-  it('keeps the loading switch independent of the master switch', () => {
-    const plan = resolveEffectPlan({ ...DEFAULT_SETTINGS, master: false, spinnerMotion: false })
+  it('keeps each category value under the master switch', () => {
+    const settings = { ...DEFAULT_SETTINGS, master: false, spinnerMotion: false, blur: false }
+    const plan = resolveEffectPlan(settings)
     expect(plan.spinnerMotion).toBe(false)
+    expect(plan.blur).toBe(false)
+    // 关掉总开关不改动各分类自己的值, 重新打开就原样恢复.
+    const restored = resolveEffectPlan({ ...settings, master: true })
+    expect(restored.spinnerMotion).toBe(false)
+    expect(restored.blur).toBe(false)
+    expect(restored.motion).toBe(true)
   })
 })

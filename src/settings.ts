@@ -14,7 +14,7 @@ export const PLUGIN_ID = 'dsh-reduce-effects'
 /** Plugin module name exported by the Host half and by the browser factory. */
 export const PLUGIN_NAME = 'reduce-effects'
 
-/** Field of the master switch: 关掉它等于把下面每个分类都关掉. */
+/** Field of the master switch: 关掉它等于把下面每个分类都关掉, 但不改动它们各自的值. */
 export const MASTER_FIELD = 'master'
 
 /** One boolean preference per switchable effect category. */
@@ -29,18 +29,12 @@ export const CATEGORY_FIELDS = [
   'jsMotion',
 ] as const
 
-/**
- * 总开关不代管的分类. 加载指示器与进度条表达的是 "还在跑" 这一功能信息,
- * 不是装饰, 所以总开关不该把它一起收掉, 只有它自己的开关能停.
- */
-export const MASTER_EXEMPT_FIELD = 'spinnerMotion'
-
 /** Field name of one effect category. */
 export type CategoryField = typeof CATEGORY_FIELDS[number]
 
 /** The durable preference section as the Host schema and the page both see it. */
 export interface ReduceEffectsSettings extends Record<CategoryField, boolean> {
-  /** 全部特效的总开关; 关掉后除豁免分类外一律关闭. */
+  /** 全部特效的总开关; 关掉后各分类一律不生效, 但各自的选择原样保留. */
   master: boolean
 }
 

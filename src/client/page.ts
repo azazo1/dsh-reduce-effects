@@ -8,7 +8,7 @@ import type { ReactElement } from 'react'
 import type { ConfigForm } from '@deepseek-ai/dsh-client-ui-settings/client'
 import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import {
-  CATEGORY_FIELDS, MASTER_EXEMPT_FIELD, MASTER_FIELD, normalizeSettings,
+  CATEGORY_FIELDS, MASTER_FIELD, normalizeSettings,
   type CategoryField, type ReduceEffectsSettings,
 } from '../settings.ts'
 import { upsertStyle } from './dom-style.ts'
@@ -103,22 +103,18 @@ export function createReduceEffectsPage(
       }),
     )
 
-    // 总开关关掉时除豁免分类外都被强制关闭, 所以那些行显示为关闭并禁用;
-    // 豁免分类 (加载与进度动画) 始终显示自己的值, 也始终可点.
+    // 总开关只做总闸与禁用: 关掉后各分类一律不生效, 所以它们的开关变灰不可点,
+    // 但显示的是各自保存的值, 重新打开总开关就原样恢复.
     const rows: ReactElement[] = [
       row(MASTER_FIELD, 'master', 'masterHint', masterOn, locked, undefined),
-      ...CATEGORY_FIELDS.map((field: CategoryField) => {
-        const own = field === MASTER_EXEMPT_FIELD
-        const forcedOff = !masterOn && !own
-        return row(
-          field,
-          field,
-          `${field}Hint`,
-          forcedOff ? false : settings[field],
-          locked || forcedOff,
-          forcedOff ? t('masterNotice') : undefined,
-        )
-      }),
+      ...CATEGORY_FIELDS.map((field: CategoryField) => row(
+        field,
+        field,
+        `${field}Hint`,
+        settings[field],
+        locked || !masterOn,
+        undefined,
+      )),
     ]
 
     const statusNote = snapshot.status === 'loading'

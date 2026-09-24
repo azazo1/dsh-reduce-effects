@@ -14,20 +14,15 @@ import { Context, Volatile } from "@deepseek-ai/cordis";
 declare const PLUGIN_ID = "dsh-reduce-effects";
 /** Plugin module name exported by the Host half and by the browser factory. */
 declare const PLUGIN_NAME = "reduce-effects";
-/** Field of the master switch: 关掉它等于把下面每个分类都关掉. */
+/** Field of the master switch: 关掉它等于把下面每个分类都关掉, 但不改动它们各自的值. */
 declare const MASTER_FIELD = "master";
 /** One boolean preference per switchable effect category. */
 declare const CATEGORY_FIELDS: readonly ["motion", "spinnerMotion", "blur", "smoothScroll", "hoverMarquee", "decoration", "gradients", "jsMotion"];
-/**
- * 总开关不代管的分类. 加载指示器与进度条表达的是 "还在跑" 这一功能信息,
- * 不是装饰, 所以总开关不该把它一起收掉, 只有它自己的开关能停.
- */
-declare const MASTER_EXEMPT_FIELD = "spinnerMotion";
 /** Field name of one effect category. */
 type CategoryField = typeof CATEGORY_FIELDS[number];
 /** The durable preference section as the Host schema and the page both see it. */
 interface ReduceEffectsSettings extends Record<CategoryField, boolean> {
-  /** 全部特效的总开关; 关掉后除豁免分类外一律关闭. */
+  /** 全部特效的总开关; 关掉后各分类一律不生效, 但各自的选择原样保留. */
   master: boolean;
 }
 /** 默认全开: 与没装插件时的 DSH 表现一致, 用户主动关掉才改变界面. */
@@ -72,5 +67,5 @@ declare const Config: z<Schemastery.ObjectS<NoInfer<{
  */
 declare function apply(ctx: Context): void;
 //#endregion
-export { CATEGORY_FIELDS, type CategoryField, Config, DEFAULT_SETTINGS, MASTER_EXEMPT_FIELD, MASTER_FIELD, PLUGIN_ID, PLUGIN_NAME, type ReduceEffectsSettings, apply, name, normalizeSettings };
+export { CATEGORY_FIELDS, type CategoryField, Config, DEFAULT_SETTINGS, MASTER_FIELD, PLUGIN_ID, PLUGIN_NAME, type ReduceEffectsSettings, apply, name, normalizeSettings };
 //# sourceMappingURL=index.d.ts.map

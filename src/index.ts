@@ -10,7 +10,7 @@ import z from '@deepseek-ai/schemastery'
 import { CATEGORY_FIELDS, MASTER_FIELD, PLUGIN_NAME } from './settings.ts'
 
 export {
-  CATEGORY_FIELDS, DEFAULT_SETTINGS, MASTER_EXEMPT_FIELD, MASTER_FIELD, PLUGIN_ID, PLUGIN_NAME,
+  CATEGORY_FIELDS, DEFAULT_SETTINGS, MASTER_FIELD, PLUGIN_ID, PLUGIN_NAME,
   normalizeSettings, type CategoryField, type ReduceEffectsSettings,
 } from './settings.ts'
 
