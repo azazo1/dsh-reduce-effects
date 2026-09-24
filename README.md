@@ -19,7 +19,7 @@ dsh plugin --profile web add dsh-reduce-effects
 固定版本:
 
 ```shell
-dsh plugin --profile web add azazo1/dsh-reduce-effects#v0.1.0
+dsh plugin --profile web add azazo1/dsh-reduce-effects#v0.1.1
 ```
 
 GitHub Release 同时挂不带版本号的预构建包, 安装时跳过 `allowBuilds`:
