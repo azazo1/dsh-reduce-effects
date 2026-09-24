@@ -21,6 +21,7 @@ export const MASTER_FIELD = 'master'
 export const CATEGORY_FIELDS = [
   'motion',
   'spinnerMotion',
+  'textShimmer',
   'blur',
   'smoothScroll',
   'hoverMarquee',
@@ -43,6 +44,7 @@ export const DEFAULT_SETTINGS: ReduceEffectsSettings = {
   master: true,
   motion: true,
   spinnerMotion: true,
+  textShimmer: true,
   blur: true,
   smoothScroll: true,
   hoverMarquee: true,

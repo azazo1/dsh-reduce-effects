@@ -16,6 +16,11 @@ describe('normalizeSettings', () => {
     expect(settings.blur).toBe(true)
     expect(settings.master).toBe(true)
   })
+
+  it('keeps the shimmer switch on for a section written before the field existed', () => {
+    const settings = normalizeSettings({ motion: false, gradients: false })
+    expect(settings.textShimmer).toBe(true)
+  })
 })
 
 describe('resolveEffectPlan', () => {
@@ -29,6 +34,16 @@ describe('resolveEffectPlan', () => {
     expect(plan.gradients).toBe(false)
     expect(plan.motion).toBe(true)
     expect(planIsIdle(plan)).toBe(false)
+  })
+
+  it('keeps the shimmer switch independent from the gradient and motion switches', () => {
+    // 单向正交: 关掉别处不改这一档的值, 只有它自己的开关能改.
+    const others = resolveEffectPlan({ ...DEFAULT_SETTINGS, gradients: false, motion: false })
+    expect(others.textShimmer).toBe(true)
+    const own = resolveEffectPlan({ ...DEFAULT_SETTINGS, textShimmer: false })
+    expect(own.textShimmer).toBe(false)
+    expect(own.gradients).toBe(true)
+    expect(own.motion).toBe(true)
   })
 
   it('turns every category off with the master switch', () => {

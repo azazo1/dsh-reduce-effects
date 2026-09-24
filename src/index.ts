@@ -25,6 +25,7 @@ export const Config = z.object({
   [MASTER_FIELD]: z.boolean().default(true).volatile(),
   motion: z.boolean().default(true).volatile(),
   spinnerMotion: z.boolean().default(true).volatile(),
+  textShimmer: z.boolean().default(true).volatile(),
   blur: z.boolean().default(true).volatile(),
   smoothScroll: z.boolean().default(true).volatile(),
   hoverMarquee: z.boolean().default(true).volatile(),

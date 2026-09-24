@@ -17,7 +17,7 @@ declare const PLUGIN_NAME = "reduce-effects";
 /** Field of the master switch: 关掉它等于把下面每个分类都关掉, 但不改动它们各自的值. */
 declare const MASTER_FIELD = "master";
 /** One boolean preference per switchable effect category. */
-declare const CATEGORY_FIELDS: readonly ["motion", "spinnerMotion", "blur", "smoothScroll", "hoverMarquee", "decoration", "gradients", "jsMotion"];
+declare const CATEGORY_FIELDS: readonly ["motion", "spinnerMotion", "textShimmer", "blur", "smoothScroll", "hoverMarquee", "decoration", "gradients", "jsMotion"];
 /** Field name of one effect category. */
 type CategoryField = typeof CATEGORY_FIELDS[number];
 /** The durable preference section as the Host schema and the page both see it. */
@@ -44,6 +44,7 @@ declare const Config: z<Schemastery.ObjectS<NoInfer<{
   master: z<boolean, boolean, "volatile-defined">;
   motion: z<boolean, boolean, "volatile-defined">;
   spinnerMotion: z<boolean, boolean, "volatile-defined">;
+  textShimmer: z<boolean, boolean, "volatile-defined">;
   blur: z<boolean, boolean, "volatile-defined">;
   smoothScroll: z<boolean, boolean, "volatile-defined">;
   hoverMarquee: z<boolean, boolean, "volatile-defined">;
@@ -54,6 +55,7 @@ declare const Config: z<Schemastery.ObjectS<NoInfer<{
   master: z<boolean, boolean, "volatile-defined">;
   motion: z<boolean, boolean, "volatile-defined">;
   spinnerMotion: z<boolean, boolean, "volatile-defined">;
+  textShimmer: z<boolean, boolean, "volatile-defined">;
   blur: z<boolean, boolean, "volatile-defined">;
   smoothScroll: z<boolean, boolean, "volatile-defined">;
   hoverMarquee: z<boolean, boolean, "volatile-defined">;

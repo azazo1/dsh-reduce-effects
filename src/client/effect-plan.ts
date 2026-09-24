@@ -8,6 +8,8 @@ export interface EffectPlan {
   motion: boolean
   /** 加载与进度动画: 关掉后进度条与加载指示器也停. */
   spinnerMotion: boolean
+  /** 文字流光: 关掉后运行中节点文字上扫动的高光不再出现. */
+  textShimmer: boolean
   /** Drop backdrop blur (frosted menus and floating surfaces). */
   blur: boolean
   /** Scroll containers land immediately instead of easing. */
@@ -35,6 +37,7 @@ export function resolveEffectPlan(settings: ReduceEffectsSettings): EffectPlan {
   return {
     motion: master && settings.motion,
     spinnerMotion: master && settings.spinnerMotion,
+    textShimmer: master && settings.textShimmer,
     blur: master && settings.blur,
     smoothScroll: master && settings.smoothScroll,
     hoverMarquee: master && settings.hoverMarquee,
@@ -50,6 +53,6 @@ export function resolveEffectPlan(settings: ReduceEffectsSettings): EffectPlan {
  * @returns true when every category stays on, which is the untouched DSH look.
  */
 export function planIsIdle(plan: EffectPlan): boolean {
-  return plan.motion && plan.spinnerMotion && plan.blur && plan.smoothScroll
+  return plan.motion && plan.spinnerMotion && plan.textShimmer && plan.blur && plan.smoothScroll
     && plan.hoverMarquee && plan.decoration && plan.gradients && plan.jsMotion
 }

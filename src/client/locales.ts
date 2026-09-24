@@ -12,6 +12,7 @@ export type ReduceEffectsKey =
   | 'master' | 'masterHint'
   | 'motion' | 'motionHint'
   | 'spinnerMotion' | 'spinnerMotionHint'
+  | 'textShimmer' | 'textShimmerHint'
   | 'blur' | 'blurHint'
   | 'smoothScroll' | 'smoothScrollHint'
   | 'hoverMarquee' | 'hoverMarqueeHint'
@@ -36,6 +37,8 @@ export const zh: LocaleDictOf<typeof LOCALE_NS> = {
   motionHint: '关掉后停掉装饰性动画, 并把过渡压缩到 1 毫秒; 加载指示器与进度条由下面那一项单独控制.',
   spinnerMotion: '加载与进度动画',
   spinnerMotionHint: '关掉后进度条与加载指示器的动画也一起停, 界面看起来就像卡住. 总开关关掉时这一项同样不生效.',
+  textShimmer: '文字流光',
+  textShimmerHint: '关掉后运行中节点文字上来回扫动的那道高光不再出现, 文字退回当前文字色; 工具行, 命令卡片与折叠行的运行中标签一起受影响. 流光本身就是渐变颜料加动画, 所以关掉 "渐变背景" 或 "动画与过渡" 也会顺带把它收掉, 这一项只是更窄的一条收法.',
   blur: '毛玻璃与背景模糊',
   blurHint: '关掉后移除菜单和浮层的背景模糊.',
   smoothScroll: '平滑滚动',
@@ -65,6 +68,8 @@ export const en: LocaleDictOf<typeof LOCALE_NS> = {
   motionHint: 'Turning this off stops decorative animations and collapses transitions to one millisecond; loading spinners and progress bars follow the next switch instead.',
   spinnerMotion: 'Loading and progress animations',
   spinnerMotionHint: 'Turning this off stops spinners and progress bars too, so a stall looks like a hang. It is inactive as well while the master switch is off.',
+  textShimmer: 'Text shimmer',
+  textShimmerHint: 'Turning this off removes the moving highlight that sweeps across the text of a running node and leaves plain text color; running labels in tool rows, command cards and disclosure rows are all covered. The highlight is gradient paint plus an animation, so turning off "Gradient backgrounds" or "Animations and transitions" takes it away as well; this switch is the narrower way to do it.',
   blur: 'Frosted backgrounds',
   blurHint: 'Turning this off removes backdrop blur from menus and floating surfaces.',
   smoothScroll: 'Smooth scrolling',

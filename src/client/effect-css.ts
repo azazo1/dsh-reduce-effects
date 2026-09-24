@@ -26,6 +26,24 @@ const ANIMATION_RULES = `*, *::before, *::after {
 }`
 
 /**
+ * 运行中节点文字上那道来回扫动的高光 (DSH 的 TextShimmer): 一条渐变被
+ * `background-clip: text` 当颜料涂在字上, 再由 `dsh-text-shimmer` 关键帧推着
+ * 扫过整行. 关掉这一档就是照 DSH 自己在减少动态效果下的降级写法把两样都收掉:
+ * 去掉颜料后必须把填充色还给文字, 否则整行字会消失.
+ *
+ * 选择器用组件自己写在元素上的 `data-text-shimmer` (只在 active 时出现), 它是
+ * 渲染期写入的稳定标记, 不随构建期类名哈希变化.
+ *
+ * 这一档是单向的: 只负责 "关掉它就去掉流光", 不阻止别处顺带收掉流光 -- 关掉
+ * "渐变背景" 或 "动画与过渡" 时它同样会消失.
+ */
+const SHIMMER_RULES = `[data-text-shimmer] {
+  background-image: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  animation: none !important;
+}`
+
+/**
  * Frosted menus and overlays are two pieces: the shell keeps the blur in
  * `--dsw-menu-backdrop-filter` and the see-through menu colour in
  * `--dsw-specific-menu` (`#30313680` in the dark theme, so half transparent).
@@ -119,6 +137,7 @@ export function effectCss(plan: EffectPlan): string {
   const blocks: string[] = []
   if (!plan.motion) blocks.push(TRANSITION_RULES)
   if (!plan.motion && !plan.spinnerMotion) blocks.push(ANIMATION_RULES)
+  if (!plan.textShimmer) blocks.push(SHIMMER_RULES)
   if (!plan.blur) blocks.push(BLUR_RULES)
   if (!plan.smoothScroll) blocks.push(SMOOTH_SCROLL_RULES)
   if (!plan.hoverMarquee) blocks.push(HOVER_TITLE_RULES)

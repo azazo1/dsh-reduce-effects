@@ -5,6 +5,7 @@ import type { EffectPlan } from '../src/client/effect-plan.ts'
 const EVERYTHING_ON: EffectPlan = {
   motion: true,
   spinnerMotion: true,
+  textShimmer: true,
   blur: true,
   smoothScroll: true,
   hoverMarquee: true,
@@ -37,6 +38,23 @@ describe('effectCss', () => {
 
   it('leaves loading-only changes to the runtime guard', () => {
     expect(effectCss(plan({ spinnerMotion: false }))).toBe('')
+  })
+
+  it('takes the running text shimmer off with the switch that owns it', () => {
+    const css = effectCss(plan({ textShimmer: false }))
+    expect(css).toContain('[data-text-shimmer]')
+    expect(css).toContain('background-image: none !important')
+    // 颜料拿掉后必须把填充色还给文字, 否则整行字会消失.
+    expect(css).toContain('-webkit-text-fill-color: currentColor !important')
+    expect(css).toContain('animation: none !important')
+  })
+
+  it('keeps the shimmer out of the other categories', () => {
+    // 单向: 这一档只管流光, 关掉它不会给别处加规则.
+    const css = effectCss(plan({ textShimmer: false }))
+    expect(css).not.toContain('transition-duration')
+    expect(css).not.toContain('box-shadow')
+    expect(css).not.toContain('backdrop-filter')
   })
 
   it('drops the frosted material and the smooth scroll easing', () => {
