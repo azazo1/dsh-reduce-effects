@@ -16,10 +16,8 @@ const TRANSITION_RULES = `*, *::before, *::after {
 }`
 
 /**
- * Animations collapse the same way, and stop after their single pass.
- *
- * 这一档只在连加载与进度动画一起停的时候才发出去; 否则动画交给运行时逐个筛
- * (见 `motion-guard.ts`), 把加载指示器与进度条留下.
+ * 这一档只在动画与加载动画同时关掉时才发出去; 只关一边时动画交给运行时逐个筛
+ * (见 `motion-guard.ts`), 该留的留下.
  */
 const ANIMATION_RULES = `*, *::before, *::after {
   animation-duration: 1ms !important;
@@ -78,18 +76,18 @@ const GRADIENT_RULES = `*, *::before, *::after {
 }`
 
 /**
- * Build the stylesheet for one plan.
+ * Build the stylesheet for one plan: 关掉的分类各出一段覆盖规则.
  * @param plan - the effective plan.
  * @returns the stylesheet text, or an empty string when nothing applies.
  */
 export function effectCss(plan: EffectPlan): string {
   const blocks: string[] = []
-  if (plan.motion) blocks.push(TRANSITION_RULES)
-  if (plan.motion && plan.spinnerMotion) blocks.push(ANIMATION_RULES)
-  if (plan.blur) blocks.push(BLUR_RULES)
-  if (plan.smoothScroll) blocks.push(SMOOTH_SCROLL_RULES)
-  if (plan.hoverMarquee) blocks.push(HOVER_TITLE_RULES)
-  if (plan.decoration) blocks.push(DECORATION_RULES)
-  if (plan.gradients) blocks.push(GRADIENT_RULES)
+  if (!plan.motion) blocks.push(TRANSITION_RULES)
+  if (!plan.motion && !plan.spinnerMotion) blocks.push(ANIMATION_RULES)
+  if (!plan.blur) blocks.push(BLUR_RULES)
+  if (!plan.smoothScroll) blocks.push(SMOOTH_SCROLL_RULES)
+  if (!plan.hoverMarquee) blocks.push(HOVER_TITLE_RULES)
+  if (!plan.decoration) blocks.push(DECORATION_RULES)
+  if (!plan.gradients) blocks.push(GRADIENT_RULES)
   return blocks.join('\n\n')
 }

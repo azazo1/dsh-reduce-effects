@@ -2,58 +2,58 @@ import { describe, expect, it } from 'vitest'
 import { effectCss } from '../src/client/effect-css.ts'
 import type { EffectPlan } from '../src/client/effect-plan.ts'
 
-const IDLE: EffectPlan = {
-  motion: false,
-  spinnerMotion: false,
-  blur: false,
-  smoothScroll: false,
-  hoverMarquee: false,
-  decoration: false,
-  gradients: false,
-  jsMotion: false,
+const EVERYTHING_ON: EffectPlan = {
+  motion: true,
+  spinnerMotion: true,
+  blur: true,
+  smoothScroll: true,
+  hoverMarquee: true,
+  decoration: true,
+  gradients: true,
+  jsMotion: true,
 }
 
-const plan = (overrides: Partial<EffectPlan>): EffectPlan => ({ ...IDLE, ...overrides })
+const plan = (overrides: Partial<EffectPlan>): EffectPlan => ({ ...EVERYTHING_ON, ...overrides })
 
 describe('effectCss', () => {
-  it('emits nothing for an idle plan', () => {
-    expect(effectCss(IDLE)).toBe('')
+  it('emits nothing while every effect stays on', () => {
+    expect(effectCss(EVERYTHING_ON)).toBe('')
   })
 
   it('collapses transitions, and leaves animations to the runtime guard', () => {
-    const css = effectCss(plan({ motion: true }))
+    const css = effectCss(plan({ motion: false }))
     expect(css).toContain('transition-duration: 1ms !important')
     expect(css).not.toContain('animation-duration')
     expect(css).not.toContain('animation: none')
   })
 
   it('collapses animations too when loading feedback is switched off as well', () => {
-    const css = effectCss(plan({ motion: true, spinnerMotion: true }))
+    const css = effectCss(plan({ motion: false, spinnerMotion: false }))
     expect(css).toContain('animation-duration: 1ms !important')
     expect(css).toContain('animation-iteration-count: 1 !important')
     expect(css).toContain('transition-duration: 1ms !important')
     expect(css).not.toContain('animation: none')
   })
 
-  it('ignores the loading switch while motion itself is untouched', () => {
-    expect(effectCss(plan({ spinnerMotion: true }))).toBe('')
+  it('leaves loading-only changes to the runtime guard', () => {
+    expect(effectCss(plan({ spinnerMotion: false }))).toBe('')
   })
 
   it('drops the frosted material and the smooth scroll easing', () => {
-    const css = effectCss(plan({ blur: true, smoothScroll: true }))
+    const css = effectCss(plan({ blur: false, smoothScroll: false }))
     expect(css).toContain('backdrop-filter: none !important')
     expect(css).toContain('scroll-behavior: auto !important')
   })
 
   it('takes the hover marquee off its scroll container and clears its masks', () => {
-    const css = effectCss(plan({ hoverMarquee: true }))
+    const css = effectCss(plan({ hoverMarquee: false }))
     expect(css).toContain('[data-row-key^="session:"]')
     expect(css).toContain('overflow: clip !important')
     expect(css).toContain('mask-image: none !important')
   })
 
   it('drops shadows, the superellipse corner and gradient washes', () => {
-    const css = effectCss(plan({ decoration: true, gradients: true }))
+    const css = effectCss(plan({ decoration: false, gradients: false }))
     expect(css).toContain('box-shadow: none !important')
     expect(css).toContain('corner-shape: round !important')
     expect(css).toContain('background-image: none !important')
@@ -62,6 +62,6 @@ describe('effectCss', () => {
   })
 
   it('leaves the runtime-only category out of the stylesheet', () => {
-    expect(effectCss(plan({ jsMotion: true }))).toBe('')
+    expect(effectCss(plan({ jsMotion: false }))).toBe('')
   })
 })

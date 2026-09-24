@@ -20,17 +20,17 @@ export const name = PLUGIN_NAME
 /** Runtime preferences projected to the browser, one live reference per field. */
 export type Config = Record<typeof MASTER_FIELD | typeof CATEGORY_FIELDS[number], Volatile<boolean>>
 
-/** Live preference schema: the settings form's field set and its defaults. */
+/** Live preference schema: the settings form's field set and its defaults (全开). */
 export const Config = z.object({
-  [MASTER_FIELD]: z.boolean().default(false).volatile(),
-  motion: z.boolean().default(false).volatile(),
-  spinnerMotion: z.boolean().default(false).volatile(),
-  blur: z.boolean().default(false).volatile(),
-  smoothScroll: z.boolean().default(false).volatile(),
-  hoverMarquee: z.boolean().default(false).volatile(),
-  decoration: z.boolean().default(false).volatile(),
-  gradients: z.boolean().default(false).volatile(),
-  jsMotion: z.boolean().default(false).volatile(),
+  [MASTER_FIELD]: z.boolean().default(true).volatile(),
+  motion: z.boolean().default(true).volatile(),
+  spinnerMotion: z.boolean().default(true).volatile(),
+  blur: z.boolean().default(true).volatile(),
+  smoothScroll: z.boolean().default(true).volatile(),
+  hoverMarquee: z.boolean().default(true).volatile(),
+  decoration: z.boolean().default(true).volatile(),
+  gradients: z.boolean().default(true).volatile(),
+  jsMotion: z.boolean().default(true).volatile(),
 })
 
 /**

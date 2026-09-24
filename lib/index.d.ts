@@ -4,6 +4,8 @@ import { Context, Volatile } from "@deepseek-ai/cordis";
 /**
  * Shared contract of the plugin: the identity strings both halves must agree
  * on, the durable preference shape, and the fallbacks for unknown data.
+ *
+ * 每个字段的语义都是 "该特效保持开启", 关掉开关才去动界面.
  */
 /**
  * Package name. It is also the Loader row id, the browser registration id, and
@@ -12,7 +14,7 @@ import { Context, Volatile } from "@deepseek-ai/cordis";
 declare const PLUGIN_ID = "dsh-reduce-effects";
 /** Plugin module name exported by the Host half and by the browser factory. */
 declare const PLUGIN_NAME = "reduce-effects";
-/** Preference field of the one-switch kill that forces every category below. */
+/** Field of the master switch: 关掉它等于把下面每个分类都关掉. */
 declare const MASTER_FIELD = "master";
 /** One boolean preference per switchable effect category. */
 declare const CATEGORY_FIELDS: readonly ["motion", "spinnerMotion", "blur", "smoothScroll", "hoverMarquee", "decoration", "gradients", "jsMotion"];
@@ -25,15 +27,15 @@ declare const MASTER_EXEMPT_FIELD = "spinnerMotion";
 type CategoryField = typeof CATEGORY_FIELDS[number];
 /** The durable preference section as the Host schema and the page both see it. */
 interface ReduceEffectsSettings extends Record<CategoryField, boolean> {
-  /** Force every category on, ignoring the per-category values. */
+  /** 全部特效的总开关; 关掉后除豁免分类外一律关闭. */
   master: boolean;
 }
-/** Every switch off: the plugin changes nothing until the user asks it to. */
+/** 默认全开: 与没装插件时的 DSH 表现一致, 用户主动关掉才改变界面. */
 declare const DEFAULT_SETTINGS: ReduceEffectsSettings;
 /**
  * Read a preference section of unknown shape into the durable settings.
  * @param section - the section carried by the settings snapshot, if any.
- * @returns the settings with every missing or non-boolean field defaulted off.
+ * @returns the settings with every missing or non-boolean field enabled.
  */
 declare function normalizeSettings(section: unknown): ReduceEffectsSettings;
 //#endregion
@@ -42,7 +44,7 @@ declare function normalizeSettings(section: unknown): ReduceEffectsSettings;
 declare const name = "reduce-effects";
 /** Runtime preferences projected to the browser, one live reference per field. */
 type Config = Record<typeof MASTER_FIELD | typeof CATEGORY_FIELDS[number], Volatile<boolean>>;
-/** Live preference schema: the settings form's field set and its defaults. */
+/** Live preference schema: the settings form's field set and its defaults (全开). */
 declare const Config: z<Schemastery.ObjectS<NoInfer<{
   master: z<boolean, boolean, "volatile-defined">;
   motion: z<boolean, boolean, "volatile-defined">;

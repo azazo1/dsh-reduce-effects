@@ -1,6 +1,8 @@
 /**
  * Shared contract of the plugin: the identity strings both halves must agree
  * on, the durable preference shape, and the fallbacks for unknown data.
+ *
+ * 每个字段的语义都是 "该特效保持开启", 关掉开关才去动界面.
  */
 
 /**
@@ -12,7 +14,7 @@ export const PLUGIN_ID = 'dsh-reduce-effects'
 /** Plugin module name exported by the Host half and by the browser factory. */
 export const PLUGIN_NAME = 'reduce-effects'
 
-/** Preference field of the one-switch kill that forces every category below. */
+/** Field of the master switch: 关掉它等于把下面每个分类都关掉. */
 export const MASTER_FIELD = 'master'
 
 /** One boolean preference per switchable effect category. */
@@ -38,33 +40,43 @@ export type CategoryField = typeof CATEGORY_FIELDS[number]
 
 /** The durable preference section as the Host schema and the page both see it. */
 export interface ReduceEffectsSettings extends Record<CategoryField, boolean> {
-  /** Force every category on, ignoring the per-category values. */
+  /** 全部特效的总开关; 关掉后除豁免分类外一律关闭. */
   master: boolean
 }
 
-/** Every switch off: the plugin changes nothing until the user asks it to. */
+/** 默认全开: 与没装插件时的 DSH 表现一致, 用户主动关掉才改变界面. */
 export const DEFAULT_SETTINGS: ReduceEffectsSettings = {
-  master: false,
-  motion: false,
-  spinnerMotion: false,
-  blur: false,
-  smoothScroll: false,
-  hoverMarquee: false,
-  decoration: false,
-  gradients: false,
-  jsMotion: false,
+  master: true,
+  motion: true,
+  spinnerMotion: true,
+  blur: true,
+  smoothScroll: true,
+  hoverMarquee: true,
+  decoration: true,
+  gradients: true,
+  jsMotion: true,
+}
+
+/**
+ * 单个字段是否保持开启.
+ * @param value - 设置文档里读到的原始值.
+ * @returns 只有显式 false 才算关闭, 缺失或类型不对都按开启处理.
+ */
+function isEnabled(value: unknown): boolean {
+  return value !== false
 }
 
 /**
  * Read a preference section of unknown shape into the durable settings.
  * @param section - the section carried by the settings snapshot, if any.
- * @returns the settings with every missing or non-boolean field defaulted off.
+ * @returns the settings with every missing or non-boolean field enabled.
  */
 export function normalizeSettings(section: unknown): ReduceEffectsSettings {
   const source = typeof section === 'object' && section !== null
     ? section as Record<string, unknown>
     : {}
-  const settings: ReduceEffectsSettings = { ...DEFAULT_SETTINGS, master: source[MASTER_FIELD] === true }
-  for (const field of CATEGORY_FIELDS) settings[field] = source[field] === true
+  const settings: ReduceEffectsSettings = { ...DEFAULT_SETTINGS }
+  settings.master = isEnabled(source[MASTER_FIELD])
+  for (const field of CATEGORY_FIELDS) settings[field] = isEnabled(source[field])
   return settings
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { isLoadingAnimation } from '../src/client/loading-animation.ts'
-import { guardAnimations, installMotionGuard } from '../src/client/motion-guard.ts'
+import { guardAnimations, installMotionGuard, type MotionGuardMode } from '../src/client/motion-guard.ts'
 
 /** 造一个只带判定所需字段的假动画. */
 function fakeAnimation(name: string | undefined, iterations: number) {
@@ -30,7 +30,7 @@ describe('isLoadingAnimation', () => {
     }
   })
 
-  it('leaves decorative and entrance keyframes to be stopped', () => {
+  it('leaves decorative and entrance keyframes alone', () => {
     for (const name of [
       'fade-in', 'dsh-text-shimmer', 'retry-shimmer', 'search-skeleton',
       'dsh-menu-skeleton', 'hero-fish-swim', 'tooltip-in', 'dsh-toast-in',
@@ -45,21 +45,34 @@ describe('guardAnimations', () => {
   it('cancels a looping decoration and finishes a one-shot one', () => {
     const shimmer = fakeAnimation('dsh-text-shimmer', INFINITE)
     const entrance = fakeAnimation('fade-in', 1)
-    guardAnimations([asAnimation(shimmer), asAnimation(entrance)])
+    guardAnimations([asAnimation(shimmer), asAnimation(entrance)], 'keep-loading')
     expect(shimmer.cancel).toHaveBeenCalledOnce()
     expect(shimmer.finish).not.toHaveBeenCalled()
     expect(entrance.finish).toHaveBeenCalledOnce()
     expect(entrance.cancel).not.toHaveBeenCalled()
   })
 
-  it('leaves loaders and transitions alone', () => {
+  it('keeps loaders in keep-loading mode and stops them in stop-loading mode', () => {
     const spinner = fakeAnimation('spinner-rotate', INFINITE)
     const progress = fakeAnimation('file-card-progress', INFINITE)
-    const transition = fakeAnimation(undefined, 1)
-    guardAnimations([asAnimation(spinner), asAnimation(progress), asAnimation(transition)])
-    for (const animation of [spinner, progress, transition]) {
-      expect(animation.cancel).not.toHaveBeenCalled()
-      expect(animation.finish).not.toHaveBeenCalled()
+    const shimmer = fakeAnimation('dsh-text-shimmer', INFINITE)
+
+    guardAnimations([asAnimation(spinner), asAnimation(progress), asAnimation(shimmer)], 'keep-loading')
+    for (const animation of [spinner, progress]) expect(animation.cancel).not.toHaveBeenCalled()
+    expect(shimmer.cancel).toHaveBeenCalledOnce()
+
+    const kept = fakeAnimation('dsh-text-shimmer', INFINITE)
+    guardAnimations([asAnimation(spinner), asAnimation(progress), asAnimation(kept)], 'stop-loading')
+    for (const animation of [spinner, progress]) expect(animation.cancel).toHaveBeenCalledOnce()
+    expect(kept.cancel).not.toHaveBeenCalled()
+  })
+
+  it('leaves transitions alone in both modes', () => {
+    for (const mode of ['keep-loading', 'stop-loading'] as MotionGuardMode[]) {
+      const transition = fakeAnimation(undefined, 1)
+      guardAnimations([asAnimation(transition)], mode)
+      expect(transition.cancel).not.toHaveBeenCalled()
+      expect(transition.finish).not.toHaveBeenCalled()
     }
   })
 
@@ -67,7 +80,7 @@ describe('guardAnimations', () => {
     const shimmer = fakeAnimation('dsh-text-shimmer', INFINITE)
     shimmer.cancel.mockImplementation(() => { throw new Error('already cancelled') })
     const entrance = fakeAnimation('fade-in', 1)
-    guardAnimations([asAnimation(shimmer), asAnimation(entrance)])
+    guardAnimations([asAnimation(shimmer), asAnimation(entrance)], 'keep-loading')
     expect(entrance.finish).toHaveBeenCalledOnce()
   })
 })
@@ -91,7 +104,7 @@ describe('installMotionGuard', () => {
   it('sweeps what is already animating, then follows new animations', () => {
     const running = fakeAnimation('dsh-text-shimmer', INFINITE)
     const { doc, handlers } = harness([running])
-    const stop = installMotionGuard(doc as unknown as Document)
+    const stop = installMotionGuard(doc as unknown as Document, 'keep-loading')
     expect(running.cancel).toHaveBeenCalledOnce()
     expect(handlers.size).toBe(1)
 

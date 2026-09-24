@@ -103,18 +103,20 @@ export function createReduceEffectsPage(
       }),
     )
 
-    // 总开关不代管加载动画, 所以那一行在总开关打开时仍可点, 也不挂强制提示.
+    // 总开关关掉时除豁免分类外都被强制关闭, 所以那些行显示为关闭并禁用;
+    // 豁免分类 (加载与进度动画) 始终显示自己的值, 也始终可点.
     const rows: ReactElement[] = [
       row(MASTER_FIELD, 'master', 'masterHint', masterOn, locked, undefined),
       ...CATEGORY_FIELDS.map((field: CategoryField) => {
-        const forced = masterOn && field !== MASTER_EXEMPT_FIELD
+        const own = field === MASTER_EXEMPT_FIELD
+        const forcedOff = !masterOn && !own
         return row(
           field,
           field,
           `${field}Hint`,
-          settings[field],
-          locked || forced,
-          forced ? t('masterNotice') : undefined,
+          forcedOff ? false : settings[field],
+          locked || forcedOff,
+          forcedOff ? t('masterNotice') : undefined,
         )
       }),
     ]
@@ -138,7 +140,7 @@ export function createReduceEffectsPage(
         React.createElement('div', { className: 'dsh-reduce-effects-cardTitle' }, t('cardTitle')),
         ...rows,
       ),
-      masterOn
+      !masterOn
         ? React.createElement('p', { className: 'dsh-reduce-effects-note' }, t('masterNotice'))
         : null,
       statusNote === undefined
