@@ -44,13 +44,39 @@ const SHIMMER_RULES = `[data-text-shimmer] {
 }`
 
 /**
+ * 运行中整行扫过的那道高光 (DSH 的思考行与技能行), 和上一档不是同一个东西.
+ *
+ * 它不是 TextShimmer: 组件在行容器上挂一个 `::after`, 铺一条 300px 宽的横向渐变,
+ * 再用 `dsh-reasoning-row-sweep` / `dsh-skill-row-sweep` 关键帧把它从左端推到右端,
+ * 2.6 秒一轮. 文字颜料那一档碰不到它, 所以关掉流光时这里要单独收一次. 两处都只在
+ * 运行中状态挂出来: 思考行是 `running`, 技能行是 `running` 与 `preparing`.
+ *
+ * 只停动画不够 -- 关键帧一停, 伪元素会留在起始帧的 `left: 0`, 那 300px 渐变照样画在
+ * 行上; 所以直接把伪元素的 `content` 去掉, 让它根本不生成.
+ *
+ * 定位到行容器同样靠渲染期写入的稳定标记: 思考行是它根上的 `data-variant="think"`
+ * 加 DisclosureRow 的 `data-disclosure-row`, 技能行是卡片上的 `data-tool="skill"`
+ * 加它的直接子 div. 类名是构建期哈希的, 用不了.
+ */
+const ROW_SWEEP_RULES = `[data-variant='think'][data-state='running'] [data-disclosure-row]::after,
+[data-tool='skill'][data-state='running'] > div::after,
+[data-tool='skill'][data-state='preparing'] > div::after {
+  content: none !important;
+}`
+
+/**
  * Frosted menus and overlays are two pieces: the shell keeps the blur in
- * `--dsw-menu-backdrop-filter` and the see-through menu colour in
- * `--dsw-specific-menu` (`#30313680` in the dark theme, so half transparent).
+ * `--dsw-menu-backdrop-filter` and the see-through fill in a colour token.
  * Dropping only the filter would leave that translucent colour in place, and an
  * overlay would read as a transparent panel with whatever sits behind it showing
- * through; the colour therefore also swaps to an opaque layer token, which is
- * what "no frosted material" is supposed to look like.
+ * through; the fill therefore also swaps to an opaque layer token, which is what
+ * "no frosted material" is supposed to look like.
+ *
+ * Two fill tokens are in play since 0.1.7-rc.2. The shared `MenuSurface` material
+ * paints `--dsw-menu-surface-fill`, while the older `--dsw-specific-menu` (still
+ * read by hover cards, docks and selection menus) only aliases it. Overriding the
+ * alias alone would leave every `MenuSurface` translucent, so both names are set
+ * to the same opaque layer.
  *
  * Both variables are declared on `body` and on its platform/theme variants, so
  * they are set on `*` instead of on a wrapper: a declaration on the element
@@ -69,6 +95,7 @@ const BLUR_RULES = `*, *::before, *::after {
 * {
   --dsw-menu-backdrop-filter: none !important;
   --dsw-specific-menu: var(--dsw-alias-bg-layer-2) !important;
+  --dsw-menu-surface-fill: var(--dsw-alias-bg-layer-2) !important;
 }`
 
 /** Native smooth scrolling, including programmatic `scrollIntoView` easing. */
@@ -83,11 +110,10 @@ const SMOOTH_SCROLL_RULES = `*, *::before, *::after {
  * 停在省略号处; 顺带清掉拖动时才挂上的边缘渐隐 mask.
  *
  * 选择器按行上的 `data-row-key="session:..."` 定位, 那是渲染期写入的稳定标记.
- * 标题是行里的第 2 个 span (第 1 个是状态点), 没有状态点的行会提到第 1 位, 因此
- * 两条都写上; 只影响会话行, 项目行与 "显示更多" 行不动.
+ * 标题固定是行里的第 2 个格子: 第 1 个是状态点槽, 自 0.1.7-rc.2 起无条件渲染, 标题
+ * 因此不会像更早的版本那样提到第 1 位. 只影响会话行, 项目行与 "显示更多" 行不动.
  */
-const HOVER_TITLE_RULES = `[data-row-key^="session:"] > span:nth-child(1),
-[data-row-key^="session:"] > span:nth-child(2) {
+const HOVER_TITLE_RULES = `[data-row-key^="session:"] > span:nth-child(2) {
   overflow: clip !important;
 }
 
@@ -137,7 +163,7 @@ export function effectCss(plan: EffectPlan): string {
   const blocks: string[] = []
   if (!plan.motion) blocks.push(TRANSITION_RULES)
   if (!plan.motion && !plan.spinnerMotion) blocks.push(ANIMATION_RULES)
-  if (!plan.textShimmer) blocks.push(SHIMMER_RULES)
+  if (!plan.textShimmer) blocks.push(SHIMMER_RULES, ROW_SWEEP_RULES)
   if (!plan.blur) blocks.push(BLUR_RULES)
   if (!plan.smoothScroll) blocks.push(SMOOTH_SCROLL_RULES)
   if (!plan.hoverMarquee) blocks.push(HOVER_TITLE_RULES)

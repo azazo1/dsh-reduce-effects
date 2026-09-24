@@ -6,6 +6,8 @@
 
 ## 安装
 
+Web 端装进 `web` profile:
+
 ```shell
 dsh plugin --profile web add azazo1/dsh-reduce-effects
 ```
@@ -34,9 +36,13 @@ dsh plugin --profile web add https://github.com/azazo1/dsh-reduce-effects/releas
 dsh plugin --profile web add ./dsh-reduce-effects
 ```
 
-安装后重启 `dsh web`, 浏览器里刷新一次页面.
+装完重启 `dsh web`, 浏览器里刷新一次页面.
 
-引擎版本线跟随 `@deepseek-ai/dsh-*` 的 `0.1.7-rc.1` (peerDependencies 同号). 插件配置自 `0.1.7-rc.1` 起走 volatile Config, 插件页上的配置卡片经 `configForms` 读写同一份数据; 浏览器半区只向模块表请求 `react` 与 `@deepseek-ai/dsh-client-ui-primitives`. 还在更早引擎线上的部署暂时装不上这个版本.
+桌面端装进 `desktop` profile. 它由 Electron 应用独占管理, `dsh plugin` 会拒绝 `--profile desktop`, 所以要用应用内的插件管理器: 在插件页的安装入口填上面命令里对应的包名或 tarball 地址. 装上后重启应用, 窗口刷新一次.
+
+引擎版本线要求 `@deepseek-ai/dsh-*` 不低于 `0.1.7-rc.2`, 且仍在 `0.1.x` 上 (peerDependencies 写作 `>=0.1.7-rc.2 <0.2.0`, devDependencies 同号对齐). 插件配置走 volatile Config, 插件页上的配置卡片经 `configForms` 读写同一份数据; 浏览器半区只向模块表请求 `react` 与 `@deepseek-ai/dsh-client-ui-primitives`. 更早的引擎线装不上这个版本.
+
+web 与 desktop 两个 profile 跑的是同一套 Web 应用 -- 桌面端只是多起一个 Host 子进程, 并给 `<html>` 打上平台标记 -- 所以同一份包在两边通用, 不需要分别构建.
 
 ## 使用
 
@@ -47,7 +53,7 @@ dsh plugin --profile web add ./dsh-reduce-effects
 | 全部特效 | 一次停掉下面每个分类 | 分项开关保留各自的值, 但重新打开总闸前不可点 |
 | 动画与过渡 | 装饰性动画停掉, 过渡压缩到 1 毫秒 | 入场动画直接落到终态 |
 | 加载与进度动画 | 进度条与加载指示器的旋转, 脉冲 | 界面看起来像卡住, 看不出还在不在跑 |
-| 文字流光 | 运行中节点文字上来回扫动的那道高光 | 运行中节点看起来只剩静止的普通文字. 这道光本身就是渐变颜料加动画, 所以关 "渐变背景" 或 "动画与过渡" 也会顺带把它收掉, 这一项只是更窄的一条收法 |
+| 文字流光 | 运行中节点文字上来回扫动的高光, 以及思考行与技能行整行扫过的那道光 | 运行中节点只剩静止的普通文字, 整行扫光也不再出现. 这两道光的底子都是渐变加动画, 所以关 "渐变背景" 或 "动画与过渡" 也会顺带把它们收掉, 这一项只是更窄的一条收法 |
 | 毛玻璃与背景模糊 | 菜单, 浮层的 backdrop blur | 半透明面板后面的内容直接露出 |
 | 平滑滚动 | 滚动与跳转的缓动 | 长列表跳转更生硬 |
 | 标题 hover 滚动 | 侧栏会话标题悬停时的逐帧横向拖动 | 被省略的标题只能靠悬停卡片或改名看全 |
@@ -62,7 +68,9 @@ dsh plugin --profile web add ./dsh-reduce-effects
 - **样式覆盖**: 组件类名是构建期哈希的, 所以覆盖规则使用通用选择器加 `!important`, 注入到一个带 `data-plugin-css` 标记的 `<style>` 里, 由插件持有并在卸载时移除.
 - **过渡压时而非删除**: 时长压到 1 毫秒, 浏览器仍会触发 `transitionend`, 依赖它收尾的界面逻辑不受影响.
 - **动画交给运行时筛**: CSS 没有 "按关键帧名选元素" 的写法, 所以只关一边时靠 `document.getAnimations()` 与 `animationstart` 逐个筛: 安装时扫一遍已有动画, 之后接住新出现的动画, 该停的循环动画 `cancel` 掉, 一次性入场动画 `finish` 到终态. 判据是关键帧名 (spin, progress, busy, pending, blink, dot 等视为加载反馈): 关动画与过渡时停装饰动画放行加载指示器, 关加载动画时反过来; 两者都关才改用全局的 1 毫秒动画规则.
-- **运行中文字流光**: 关掉这一项时按组件自己写在元素上的 `data-text-shimmer` (只在运行中出现) 收掉 DSH `TextShimmer` 的渐变颜料与扫动关键帧, 写法与 DSH 自己在减少动态效果下的降级一致. 这一档是单向的: 只保证关掉它不会波及别处, 反过来关 "渐变背景" 或 "动画与过渡" 时同样会把这道光收掉 (它的关键帧名不含加载提示词, 因此被动画守卫当作装饰动画).
+- **运行中文字流光**: 关掉这一项时按组件自己写在元素上的 `data-text-shimmer` (只在运行中出现) 收掉 DSH `TextShimmer` 的渐变颜料与扫动关键帧, 写法与 DSH 自己在减少动态效果下的降级一致.
+- **运行中整行扫光**: 思考行与技能行另有一道 300px 宽的渐变扫过整行 (关键帧 `dsh-reasoning-row-sweep` 与 `dsh-skill-row-sweep`), 它不是 `TextShimmer`, 文字那一档碰不到. 这里按 `data-variant="think"` 加 `data-disclosure-row`, 以及 `data-tool="skill"` 这两个渲染期标记定位行容器, 把它的 `::after` 的 `content` 去掉. 只停动画不行: 关键帧一停, 伪元素会留在起始帧的 `left: 0`, 那 300px 渐变照样画在行上.
+- **这两道光都是单向的**: 只保证关掉这一项不会波及别处, 反过来关 "渐变背景" 或 "动画与过渡" 时同样会把它们收掉 (关键帧名不含加载提示词, 因此被动画守卫当作装饰动画).
 - **JS 动效即时化**: 关掉 JS 动效开关时覆盖 `window.matchMedia`, 让 `prefers-reduced-motion` 查询回答 reduce, `no-preference` 回答 false, 其他查询原样转发; 开关打开或卸载插件时恢复原函数.
 - **配置**: 字段是 volatile 的插件的 Config, 每个字段表示对应特效是否开启 (默认 true), entry id 为 `dsh-reduce-effects`, 落在 profile 的 patch 层里, 卡片通过 `ctx.configForms` 读写同一份数据.
 

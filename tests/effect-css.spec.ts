@@ -49,6 +49,16 @@ describe('effectCss', () => {
     expect(css).toContain('animation: none !important')
   })
 
+  it('takes the running row sweep off too, which is a different control', () => {
+    const css = effectCss(plan({ textShimmer: false }))
+    // 思考行与技能行的扫光是 ::after 上另一道高光, TextShimmer 那个属性选择器碰不到.
+    expect(css).toContain("[data-variant='think'][data-state='running'] [data-disclosure-row]::after")
+    expect(css).toContain("[data-tool='skill'][data-state='running'] > div::after")
+    expect(css).toContain("[data-tool='skill'][data-state='preparing'] > div::after")
+    // 只停动画会把它留在起始帧的 left: 0, 所以连伪元素本身一起去掉.
+    expect(css).toContain('content: none !important')
+  })
+
   it('keeps the shimmer out of the other categories', () => {
     // 单向: 这一档只管流光, 关掉它不会给别处加规则.
     const css = effectCss(plan({ textShimmer: false }))
@@ -64,6 +74,8 @@ describe('effectCss', () => {
     // 只去掉模糊会留下半透明的菜单底色, 浮层会变得透明; 底色要一并换成不透明的层色.
     expect(css).toContain('--dsw-menu-backdrop-filter: none !important')
     expect(css).toContain('--dsw-specific-menu: var(--dsw-alias-bg-layer-2')
+    // 0.1.7-rc.2 起菜单材质由 MenuSurface 用自己的填充 token 画, 只覆盖别名管不到它.
+    expect(css).toContain('--dsw-menu-surface-fill: var(--dsw-alias-bg-layer-2')
     // 层色 token 亮暗主题都有, 不写字面量 fallback, 否则另一套主题会错色.
     expect(css).not.toContain('#2c2c2e')
   })
@@ -73,6 +85,8 @@ describe('effectCss', () => {
     expect(css).toContain('[data-row-key^="session:"]')
     expect(css).toContain('overflow: clip !important')
     expect(css).toContain('mask-image: none !important')
+    // 标题是第 2 个格子: 第 1 个是常驻的状态点槽, 打错了会裁到状态点上.
+    expect(css).toContain('> span:nth-child(2)')
   })
 
   it('drops shadows, the superellipse corner and gradient washes', () => {
