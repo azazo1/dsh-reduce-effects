@@ -9,6 +9,8 @@ import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 // Type-only: merges ctx.locale.
 import type {} from '@deepseek-ai/dsh-client-locale/client'
+// Type-only: merges the SlotRegistry service (ctx.slots).
+import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import { normalizeSettings, PLUGIN_ID, PLUGIN_NAME, type ReduceEffectsSettings } from '../settings.ts'
 import { EffectsController } from './effect-controller.ts'
 import { resolveEffectPlan } from './effect-plan.ts'
