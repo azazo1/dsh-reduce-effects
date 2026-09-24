@@ -62,10 +62,11 @@ declare const Config: z<Schemastery.ObjectS<NoInfer<{
   jsMotion: z<boolean, boolean, "volatile-defined">;
 }>>, "plain">;
 /**
- * Register the plugin's own page as the settings surface for these fields.
- * @param ctx - Host plugin context.
+ * Host half: the Config schema above is the whole host surface. The browser half
+ * owns the card that edits it on the Plugins page.
+ * @param _ctx - Host plugin context.
  */
-declare function apply(ctx: Context): void;
+declare function apply(_ctx: Context): void;
 //#endregion
 export { CATEGORY_FIELDS, type CategoryField, Config, DEFAULT_SETTINGS, MASTER_FIELD, PLUGIN_ID, PLUGIN_NAME, type ReduceEffectsSettings, apply, name, normalizeSettings };
 //# sourceMappingURL=index.d.ts.map

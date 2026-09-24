@@ -14,6 +14,12 @@ importers:
       '@deepseek-ai/dsh-client-locale':
         specifier: 0.1.7-rc.1
         version: 0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)
+      '@deepseek-ai/dsh-client-store':
+        specifier: 0.1.7-rc.1
+        version: 0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)
+      '@deepseek-ai/dsh-client-ui-plugin-manager':
+        specifier: 0.1.7-rc.1
+        version: 0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)
       '@deepseek-ai/dsh-client-ui-primitives':
         specifier: 0.1.7-rc.1
         version: 0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)
@@ -109,6 +115,16 @@ packages:
 
   '@deepseek-ai/dsh-client-locale@0.1.7-rc.1':
     resolution: {integrity: sha512-7DmI05k+FUZaDk0SEqJahDQn75SoENuUeoFjPG1nzXXxU8xq1KsE5kWgKlwtbOTCpbvn/ax4F5FhRjZnpJZQkg==}
+    peerDependencies:
+      '@deepseek-ai/cordis': ~4.0.4
+
+  '@deepseek-ai/dsh-client-store@0.1.7-rc.1':
+    resolution: {integrity: sha512-hhFQYtpxs2Fi2emEfWZ9LUu4HVZ+M65NMmHuzdOhnOlTq7Q3ch8DHaqkAKCV+USW4XnaHJyxtpv4qdMjaxFrHw==}
+    peerDependencies:
+      '@deepseek-ai/cordis': ~4.0.4
+
+  '@deepseek-ai/dsh-client-ui-plugin-manager@0.1.7-rc.1':
+    resolution: {integrity: sha512-qvLcO0fcYhtWP/0j43RE+LEPUbX1Sr0A2Ko32PaU2weUNUSthQrxOOaBc2zZzj/dfdFDRKOMAEv8ctq7e7QQtA==}
     peerDependencies:
       '@deepseek-ai/cordis': ~4.0.4
 
@@ -1063,6 +1079,18 @@ snapshots:
     dependencies:
       '@deepseek-ai/cordis': 4.0.4(@deepseek-ai/cordis-plugin-include@1.0.9)(@deepseek-ai/cordis-plugin-loader@1.0.5)
       '@deepseek-ai/schemastery': 3.18.4
+
+  '@deepseek-ai/dsh-client-store@0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)':
+    dependencies:
+      '@deepseek-ai/cordis': 4.0.4(@deepseek-ai/cordis-plugin-include@1.0.9)(@deepseek-ai/cordis-plugin-loader@1.0.5)
+
+  '@deepseek-ai/dsh-client-ui-plugin-manager@0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)':
+    dependencies:
+      '@deepseek-ai/cordis': 4.0.4(@deepseek-ai/cordis-plugin-include@1.0.9)(@deepseek-ai/cordis-plugin-loader@1.0.5)
+      '@deepseek-ai/dsh-timeout': 0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)
+      '@deepseek-ai/dsh-typert-protocol': 0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)
+      '@deepseek-ai/schemastery': 3.18.4
+      zod: 4.6.5
 
   '@deepseek-ai/dsh-client-ui-primitives@0.1.7-rc.1(@deepseek-ai/cordis@4.0.4)':
     dependencies:

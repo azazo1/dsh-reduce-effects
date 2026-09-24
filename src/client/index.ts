@@ -1,12 +1,14 @@
 /**
  * Browser half. The bundle registers itself with the client module loader, then
- * keeps the page in sync with the stored preferences and contributes the
- * switches page to Web Settings.
+ * keeps the frontend effect plan in sync with the stored preferences and
+ * contributes the switches card to the Plugins page.
  */
 
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
-// Type-only: merges ctx.slots, ctx.configForms and the `settings.section` entry.
+import type { ReactNode } from 'react'
+// Type-only: merges ctx.slots, ctx.configForms and the `plugins.bundle.config` entry.
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
 // Type-only: merges ctx.locale.
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 // Type-only: merges the SlotRegistry service (ctx.slots).
@@ -14,8 +16,11 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import { normalizeSettings, PLUGIN_ID, PLUGIN_NAME, type ReduceEffectsSettings } from '../settings.ts'
 import { EffectsController } from './effect-controller.ts'
 import { resolveEffectPlan } from './effect-plan.ts'
+import { createSwitchField } from './fields.ts'
 import { en, LOCALE_NS, zh } from './locales.ts'
-import { createReduceEffectsPage, type SwitchComponent } from './page.ts'
+import { createReduceEffectsCard } from './settings-card.ts'
+import { ReduceEffectsSettingsForm } from './settings-form.ts'
+import { injectFieldStyles } from './styles.ts'
 
 /** `data-plugin-css` marker of the injected effect rules. */
 const EFFECT_STYLE_MARK = `${PLUGIN_ID}/effects`
@@ -43,8 +48,16 @@ if (loader === undefined) {
 loader.load({
   id: PLUGIN_ID,
   factory: (require) => {
-    const React = require('react') as typeof import('react')
-    const { Switch } = require('@deepseek-ai/dsh-client-ui-primitives') as { Switch: SwitchComponent }
+    const React = require('react') as { createElement: (...args: unknown[]) => ReactNode }
+    const primitives = require('@deepseek-ai/dsh-client-ui-primitives') as {
+      SettingsForm: (props: Record<string, unknown>) => ReactNode
+      SettingsFormModel: ConstructorParameters<typeof ReduceEffectsSettingsForm>[1]
+      Switch: (props: Record<string, unknown>) => ReactNode
+      Tag: (props: Record<string, unknown>) => ReactNode
+    }
+    const SwitchField = createSwitchField({ React, Switch: primitives.Switch, Tag: primitives.Tag })
+    const Card = createReduceEffectsCard({ React, SettingsForm: primitives.SettingsForm, SwitchField })
+
     return {
       name: PLUGIN_NAME,
       inject: ['slots', 'locale', 'configForms'],
@@ -63,21 +76,25 @@ loader.load({
           }
         }, `${PLUGIN_ID}: effect runtime`)
 
-        const Page = createReduceEffectsPage({ React, Switch, form })
+        injectFieldStyles()
         ctx.effect(
           () => ctx.locale.register(LOCALE_NS, { zh, en }),
           `${PLUGIN_ID}: dictionaries`,
         )
-        const t = ctx.locale.bind(LOCALE_NS)
-        // Served namespaces gate the page: an entry the Host does not expose has
-        // no settings behind it, so the page stays out of the navigation.
-        ctx.effect(() => ctx.configForms.whileServed([PLUGIN_ID], () => ctx.slots.inject('settings.section', () => ctx.slots.register({
-          name: 'settings.section',
-          id: PLUGIN_ID,
-          order: 200,
-          label: () => t('nav'),
-          locale: LOCALE_NS,
-        }, Page))), `${PLUGIN_ID}: settings page`)
+
+        const card = new ReduceEffectsSettingsForm(form, primitives.SettingsFormModel)
+        ctx.effect(() => () => { card.dispose() }, `${PLUGIN_ID}: settings form`)
+        // Served entries gate the card: an entry the Host does not expose has no
+        // settings behind it, so the card stays off the Plugins page.
+        ctx.effect(() => ctx.configForms.whileServed([PLUGIN_ID], () => ctx.slots.inject(
+          'plugins.bundle.config',
+          () => ctx.slots.register({
+            name: 'plugins.bundle.config',
+            key: PLUGIN_ID,
+            locale: LOCALE_NS,
+            inject: () => card.inject(),
+          }, Card),
+        )), `${PLUGIN_ID}: plugins page card`)
       },
     }
   },

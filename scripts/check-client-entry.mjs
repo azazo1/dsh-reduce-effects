@@ -47,7 +47,9 @@ const fakeRequire = (specifier) => {
       useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot(),
     }
   }
-  if (specifier === '@deepseek-ai/dsh-client-ui-primitives') return { Switch: () => null }
+  if (specifier === '@deepseek-ai/dsh-client-ui-primitives') {
+    return { SettingsForm: () => null, Switch: () => null, Tag: () => null }
+  }
   throw new Error(`unexpected module-table request: ${specifier}`)
 }
 

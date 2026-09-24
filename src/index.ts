@@ -34,13 +34,8 @@ export const Config = z.object({
 })
 
 /**
- * Register the plugin's own page as the settings surface for these fields.
- * @param ctx - Host plugin context.
+ * Host half: the Config schema above is the whole host surface. The browser half
+ * owns the card that edits it on the Plugins page.
+ * @param _ctx - Host plugin context.
  */
-export function apply(ctx: Context): void {
-  // The browser half ships its own page, so the schema-generated form stays off
-  // for this entry; the fields remain readable and writable either way.
-  ctx.inject(['settings'], (child) => {
-    child.effect(() => child.settings.configure({ auto: false }, ctx.fiber))
-  })
-}
+export function apply(_ctx: Context): void {}
