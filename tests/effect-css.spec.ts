@@ -46,6 +46,8 @@ describe('effectCss', () => {
     // 只去掉模糊会留下半透明的菜单底色, 浮层会变得透明; 底色要一并换成不透明的层色.
     expect(css).toContain('--dsw-menu-backdrop-filter: none !important')
     expect(css).toContain('--dsw-specific-menu: var(--dsw-alias-bg-layer-2')
+    // 层色 token 亮暗主题都有, 不写字面量 fallback, 否则另一套主题会错色.
+    expect(css).not.toContain('#2c2c2e')
   })
 
   it('takes the hover marquee off its scroll container and clears its masks', () => {
@@ -62,6 +64,15 @@ describe('effectCss', () => {
     expect(css).toContain('background-image: none !important')
     // 渐变被去掉后, 用渐变当颜料的文字必须拿回填充色, 否则整行字会消失.
     expect(css).toContain('-webkit-text-fill-color: currentColor !important')
+  })
+
+  it('gives the docked composer seat an opaque base once the gradient is gone', () => {
+    const css = effectCss(plan({ gradients: false }))
+    // 座位的不透明底板本来就只是一条 background-image 渐变, 删掉后座位整块透明,
+    // 滚动中的消息会从输入框后面穿出来, 所以补一层跟随主题的纯色底.
+    expect(css).toContain('background-color: var(--dsw-alias-bg-base) !important')
+    expect(css).toContain("[data-phase='active'] [data-composer-seat]")
+    expect(css).toContain("[data-content-phase='active'] [data-composer-seat]")
   })
 
   it('leaves the runtime-only category out of the stylesheet', () => {

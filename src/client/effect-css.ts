@@ -37,8 +37,11 @@ const ANIMATION_RULES = `*, *::before, *::after {
  * Both variables are declared on `body` and on its platform/theme variants, so
  * they are set on `*` instead of on a wrapper: a declaration on the element
  * itself always beats the inherited value, whatever specificity the shell's own
- * selector carries. The literal is only a fallback for a theme that does not
- * ship the layer token.
+ * selector carries.
+ *
+ * 层色 token 在亮色与暗色主题里都有定义 (`--dsw-alias-bg-layer-2` 见
+ * design-platform.css 的亮暗两处), 所以这里不写字面量 fallback: 死值只能是某一套
+ * 主题的近似色, 万一 token 缺失就会在另一套主题下用错色.
  */
 const BLUR_RULES = `*, *::before, *::after {
   backdrop-filter: none !important;
@@ -47,7 +50,7 @@ const BLUR_RULES = `*, *::before, *::after {
 
 * {
   --dsw-menu-backdrop-filter: none !important;
-  --dsw-specific-menu: var(--dsw-alias-bg-layer-2, #2c2c2e) !important;
+  --dsw-specific-menu: var(--dsw-alias-bg-layer-2) !important;
 }`
 
 /** Native smooth scrolling, including programmatic `scrollIntoView` easing. */
@@ -88,10 +91,23 @@ const DECORATION_RULES = `*, *::before, *::after {
  * 渐变还会被当作 "颜料" 用来画字: DSH 的运行中文字用 `background-clip: text` 加
  * 透明填充, 文字本身只有那个渐变可见. 去掉渐变时必须同时把填充色还给文字, 否则
  * 整行字会消失; 这一句和 DSH 自己在减少动态效果时的降级写法一致.
+ *
+ * 会话底部的输入区座位 (`[data-composer-seat]`) 另有一层用途: 它钉在滚动区底部,
+ * 靠一条 "顶部全透明到 `--dsw-alias-bg-base`" 的竖向渐变盖住身后滚过去的消息,
+ * 座位自己并没有别的底色. 渐变拿掉后座位整块透明, 消息会从输入框后面穿出来, 所以
+ * 这里补一层不透明的页面底色, 顶部 36px 的渐隐带随之变成硬边.
+ *
+ * 选择器用渲染期写入的稳定标记: 座位只在固定与浮层这两种 active 布局下需要底色,
+ * 空会话居中 (hero) 时它本来就没有背景, 不能平白多出一块底板.
  */
 const GRADIENT_RULES = `*, *::before, *::after {
   background-image: none !important;
   -webkit-text-fill-color: currentColor !important;
+}
+
+[data-phase='active'] [data-composer-seat],
+[data-content-phase='active'] [data-composer-seat] {
+  background-color: var(--dsw-alias-bg-base) !important;
 }`
 
 /**
