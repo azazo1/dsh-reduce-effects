@@ -1,6 +1,6 @@
 {
   "name": "dsh-reduce-effects",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Web UI switch that turns off DSH frontend animations, blur, shadows, gradients and JS motion by category to cut browser rendering cost",
   "type": "module",
   "main": "lib/index.js",
