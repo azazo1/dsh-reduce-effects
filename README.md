@@ -40,7 +40,7 @@ dsh plugin --profile web add ./dsh-reduce-effects
 
 桌面端装进 `desktop` profile. 它由 Electron 应用独占管理, `dsh plugin` 会拒绝 `--profile desktop`, 所以要用应用内的插件管理器: 在插件页的安装入口填上面命令里对应的包名或 tarball 地址. 装上后重启应用, 窗口刷新一次.
 
-引擎版本线要求 `@deepseek-ai/dsh-*` 不低于 `0.1.7-rc.2`, 且仍在 `0.1.x` 上 (peerDependencies 写作 `>=0.1.7-rc.2 <0.2.0`, devDependencies 同号对齐). 插件配置走 volatile Config, 插件页上的配置卡片经 `configForms` 读写同一份数据; 浏览器半区只向模块表请求 `react` 与 `@deepseek-ai/dsh-client-ui-primitives`. 更早的引擎线装不上这个版本.
+引擎版本线要求 `@deepseek-ai/dsh-*` 不低于 `0.2.0-rc.1`, 且仍在 `0.2.x` 上 (peerDependencies 写作 `>=0.2.0-rc.1 <0.3.0`, devDependencies 同号对齐). 插件配置走 volatile Config, 插件页上的配置卡片经 `configForms` 读写同一份数据; 浏览器半区只向模块表请求 `react` 与 `@deepseek-ai/dsh-client-ui-primitives`. 更早的引擎线装不上这个版本.
 
 web 与 desktop 两个 profile 跑的是同一套 Web 应用 -- 桌面端只是多起一个 Host 子进程, 并给 `<html>` 打上平台标记 -- 所以同一份包在两边通用, 不需要分别构建.
 
